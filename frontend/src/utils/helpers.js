@@ -16,6 +16,15 @@ export const formatDate = (date) => {
   });
 };
 
+// Format short date for mobile (dd/mm/yy)
+export const formatShortDate = (date) => {
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = String(d.getFullYear()).slice(-2);
+  return `${day}/${month}/${year}`;
+};
+
 // Get month name
 export const getMonthName = (month) => {
   const months = [

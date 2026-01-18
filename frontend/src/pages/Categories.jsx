@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, FolderOpen } from 'lucide-react';
+import Swal from 'sweetalert2';
+import Toast from '../utils/toast';
 import Card from '../components/Card';
 import Modal from '../components/Modal';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../services/api';
@@ -22,7 +24,10 @@ const Categories = () => {
       setCategories(response.data.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
-      alert('Gagal memuat data kategori');
+      Toast.fire({
+        icon: 'error',
+        title: 'Gagal memuat data kategori'
+      });
     } finally {
       setLoading(false);
     }
@@ -33,16 +38,25 @@ const Categories = () => {
     try {
       if (editingCategory) {
         await updateCategory(editingCategory.id, formData);
-        alert('Kategori berhasil diupdate!');
+        Toast.fire({
+          icon: 'success',
+          title: 'Kategori berhasil diupdate!'
+        });
       } else {
         await createCategory(formData);
-        alert('Kategori berhasil ditambahkan!');
+        Toast.fire({
+          icon: 'success',
+          title: 'Kategori berhasil ditambahkan!'
+        });
       }
       closeModal();
       fetchCategories();
     } catch (error) {
       console.error('Error saving category:', error);
-      alert(error.response?.data?.message || 'Gagal menyimpan kategori');
+      Toast.fire({
+        icon: 'error',
+        title: error.response?.data?.message || 'Gagal menyimpan kategori'
+      });
     }
   };
 
@@ -53,14 +67,31 @@ const Categories = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Yakin ingin menghapus kategori ini?')) {
+    const result = await Swal.fire({
+      title: 'Yakin ingin menghapus?',
+      text: "Kategori ini akan dihapus permanen!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#6B7280',
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    });
+
+    if (result.isConfirmed) {
       try {
         await deleteCategory(id);
-        alert('Kategori berhasil dihapus!');
+        Toast.fire({
+          icon: 'success',
+          title: 'Kategori berhasil dihapus!'
+        });
         fetchCategories();
       } catch (error) {
         console.error('Error deleting category:', error);
-        alert('Gagal menghapus kategori');
+        Toast.fire({
+          icon: 'error',
+          title: 'Gagal menghapus kategori'
+        });
       }
     }
   };
@@ -83,16 +114,16 @@ const Categories = () => {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 lg:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 lg:mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Kategori</h1>
-          <p className="text-gray-400">Kelola kategori pengeluaran Anda</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Kategori</h1>
+          <p className="text-sm lg:text-base text-gray-400">Kelola kategori pengeluaran Anda</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="btn-primary flex items-center space-x-2"
+          className="btn-primary flex items-center space-x-2 w-full sm:w-auto justify-center"
         >
           <Plus className="w-5 h-5" />
           <span>Tambah Kategori</span>
@@ -100,7 +131,7 @@ const Categories = () => {
       </div>
 
       {/* Categories Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-6">
         {categories.map((category) => (
           <Card key={category.id} hover>
             <div className="flex items-start justify-between mb-4">

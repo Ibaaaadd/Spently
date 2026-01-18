@@ -41,3 +41,165 @@
     @apply bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors duration-200;
   }
 }
+
+/* SweetAlert2 Toast Styling */
+.swal2-popup.swal2-toast {
+  box-sizing: border-box;
+  grid-column: 1/4 !important;
+  grid-row: 1/4 !important;
+  grid-template-columns: min-content auto min-content;
+  padding: 1rem;
+  overflow-y: hidden;
+  background: #1E293B;
+  box-shadow: 0 0 1px rgba(0, 0, 0, .075), 0 1px 2px rgba(0, 0, 0, .075), 1px 2px 4px rgba(0, 0, 0, .075), 1px 3px 8px rgba(0, 0, 0, .075), 2px 4px 16px rgba(0, 0, 0, .075);
+  pointer-events: all;
+  border-left: 4px solid;
+  border-radius: 0.5rem;
+}
+
+.swal2-popup.swal2-toast .swal2-title {
+  margin: 0.5rem 1rem;
+  padding: 0;
+  font-size: 1rem;
+  text-align: initial;
+  color: #E5E7EB;
+}
+
+.swal2-popup.swal2-toast .swal2-icon {
+  width: 2rem;
+  min-width: 2rem;
+  height: 2rem;
+  margin: 0.5rem;
+}
+
+.swal2-popup.swal2-toast .swal2-icon .swal2-icon-content {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+}
+
+.swal2-popup.swal2-toast .swal2-icon-success {
+  border-color: #22C55E;
+  color: #22C55E;
+}
+
+.swal2-popup.swal2-toast.swal2-icon-success {
+  border-left-color: #22C55E;
+  background: linear-gradient(135deg, #1E293B 0%, #0F3D2C 100%);
+}
+
+.swal2-popup.swal2-toast .swal2-icon-error {
+  border-color: #EF4444;
+  color: #EF4444;
+}
+
+.swal2-popup.swal2-toast.swal2-icon-error {
+  border-left-color: #EF4444;
+  background: linear-gradient(135deg, #1E293B 0%, #3D0F1F 100%);
+}
+
+.swal2-popup.swal2-toast .swal2-icon-warning {
+  border-color: #F59E0B;
+  color: #F59E0B;
+}
+
+.swal2-popup.swal2-toast.swal2-icon-warning {
+  border-left-color: #F59E0B;
+  background: linear-gradient(135deg, #1E293B 0%, #3D2D0F 100%);
+}
+
+.swal2-popup.swal2-toast .swal2-icon-info {
+  border-color: #6366F1;
+  color: #6366F1;
+}
+
+.swal2-popup.swal2-toast.swal2-icon-info {
+  border-left-color: #6366F1;
+  background: linear-gradient(135deg, #1E293B 0%, #1E1F3D 100%);
+}
+
+.swal2-popup.swal2-toast .swal2-timer-progress-bar {
+  background: rgba(99, 102, 241, 0.6);
+}
+
+/* Regular SweetAlert2 Popup for Confirmations */
+.swal2-popup:not(.swal2-toast) {
+  background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%) !important;
+  border: 1px solid #334155 !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+}
+
+.swal2-popup:not(.swal2-toast) .swal2-title {
+  color: #E5E7EB !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+}
+
+.swal2-popup:not(.swal2-toast) .swal2-html-container {
+  color: #9CA3AF !important;
+  font-size: 1rem !important;
+}
+
+.swal2-confirm {
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%) !important;
+  border: none !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem 2rem !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4) !important;
+  transition: all 0.2s !important;
+}
+
+.swal2-confirm:hover {
+  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%) !important;
+  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.5) !important;
+  transform: translateY(-2px) !important;
+}
+
+.swal2-cancel {
+  background: #374151 !important;
+  border: 1px solid #4B5563 !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem 2rem !important;
+  font-weight: 600 !important;
+  color: #E5E7EB !important;
+  transition: all 0.2s !important;
+}
+
+.swal2-cancel:hover {
+  background: #4B5563 !important;
+  transform: translateY(-2px) !important;
+}
+
+.swal2-icon.swal2-success {
+  border-color: #22C55E !important;
+  color: #22C55E !important;
+}
+
+.swal2-icon.swal2-success [class^='swal2-success-line'] {
+  background-color: #22C55E !important;
+}
+
+.swal2-icon.swal2-error {
+  border-color: #EF4444 !important;
+  color: #EF4444 !important;
+}
+
+.swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+  background-color: #EF4444 !important;
+}
+
+.swal2-icon.swal2-warning {
+  border-color: #F59E0B !important;
+  color: #F59E0B !important;
+}
+
+.swal2-icon.swal2-info {
+  border-color: #6366F1 !important;
+  color: #6366F1 !important;
+}
+
+.swal2-styled:focus {
+  box-shadow: none !important;
+}

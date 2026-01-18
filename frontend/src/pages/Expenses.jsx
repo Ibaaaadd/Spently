@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Receipt, Calendar } from 'lucide-react';
+import Swal from 'sweetalert2';
+import Toast from '../utils/toast';
 import Card from '../components/Card';
 import Modal from '../components/Modal';
 import { getExpenses, createExpense, updateExpense, deleteExpense, getCategories } from '../services/api';
-import { formatRupiah, formatDate, getCurrentMonthYear, getMonthName } from '../utils/helpers';
+import { formatRupiah, formatDate, formatShortDate, getCurrentMonthYear, getMonthName } from '../utils/helpers';
 
 const Expenses = () => {
   const [expenses, setExpenses] = useState([]);
@@ -43,7 +45,10 @@ const Expenses = () => {
       setExpenses(response.data.data);
     } catch (error) {
       console.error('Error fetching expenses:', error);
-      alert('Gagal memuat data pengeluaran');
+      Toast.fire({
+        icon: 'error',
+        title: 'Gagal memuat data pengeluaran'
+      });
     } finally {
       setLoading(false);
     }
@@ -60,23 +65,35 @@ const Expenses = () => {
 
       if (editingExpense) {
         await updateExpense(editingExpense.id, data);
-        alert('Pengeluaran berhasil diupdate!');
+        Toast.fire({
+          icon: 'success',
+          title: 'Pengeluaran berhasil diupdate!'
+        });
       } else {
         await createExpense(data);
-        alert('Pengeluaran berhasil ditambahkan!');
+        Toast.fire({
+          icon: 'success',
+          title: 'Pengeluaran berhasil ditambahkan!'
+        });
       }
       closeModal();
       fetchExpenses();
     } catch (error) {
       console.error('Error saving expense:', error);
-      alert(error.response?.data?.message || 'Gagal menyimpan pengeluaran');
+      Toast.fire({
+        icon: 'error',
+        title: error.response?.data?.message || 'Gagal menyimpan pengeluaran'
+      });
     }
   };
 
   const handleEdit = (expense) => {
     setEditingExpense(expense);
+    // Convert date to YYYY-MM-DD format for input type="date"
+    const dateObj = new Date(expense.date);
+    const formattedDate = dateObj.toISOString().split('T')[0];
     setFormData({
-      date: expense.date,
+      date: formattedDate,
       category_id: expense.category_id.toString(),
       description: expense.description,
       amount: expense.amount.toString(),
@@ -85,14 +102,31 @@ const Expenses = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Yakin ingin menghapus pengeluaran ini?')) {
+    const result = await Swal.fire({
+      title: 'Yakin ingin menghapus?',
+      text: "Pengeluaran ini akan dihapus permanen!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#6B7280',
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    });
+
+    if (result.isConfirmed) {
       try {
         await deleteExpense(id);
-        alert('Pengeluaran berhasil dihapus!');
+        Toast.fire({
+          icon: 'success',
+          title: 'Pengeluaran berhasil dihapus!'
+        });
         fetchExpenses();
       } catch (error) {
         console.error('Error deleting expense:', error);
-        alert('Gagal menghapus pengeluaran');
+        Toast.fire({
+          icon: 'error',
+          title: 'Gagal menghapus pengeluaran'
+        });
       }
     }
   };
@@ -139,16 +173,16 @@ const Expenses = () => {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 lg:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 lg:mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Pengeluaran</h1>
-          <p className="text-gray-400">Kelola pengeluaran harian Anda</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Pengeluaran</h1>
+          <p className="text-sm lg:text-base text-gray-400">Kelola pengeluaran harian Anda</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="btn-primary flex items-center space-x-2"
+          className="btn-primary flex items-center space-x-2 w-full sm:w-auto justify-center"
         >
           <Plus className="w-5 h-5" />
           <span>Tambah Pengeluaran</span>
@@ -156,31 +190,31 @@ const Expenses = () => {
       </div>
 
       {/* Period & Total */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-6 mb-4 lg:mb-6">
         <Card>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Calendar className="w-5 h-5 text-primary" />
-              <span className="text-lg font-semibold text-white">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center space-x-2 lg:space-x-3">
+              <Calendar className="w-4 h-4 lg:w-5 lg:h-5 text-primary" />
+              <span className="text-base lg:text-lg font-semibold text-white">
                 {getMonthName(selectedPeriod.month)} {selectedPeriod.year}
               </span>
             </div>
-            <div className="flex space-x-2">
+            <div className="flex space-x-1 lg:space-x-2 w-full sm:w-auto">
               <button
                 onClick={() => handleMonthChange(-1)}
-                className="px-3 py-1 bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm"
+                className="flex-1 sm:flex-none px-2 lg:px-3 py-1 bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm"
               >
                 ←
               </button>
               <button
                 onClick={() => setSelectedPeriod(getCurrentMonthYear())}
-                className="px-3 py-1 bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm"
+                className="flex-1 sm:flex-none px-2 lg:px-3 py-1 bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm"
               >
                 Today
               </button>
               <button
                 onClick={() => handleMonthChange(1)}
-                className="px-3 py-1 bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm"
+                className="flex-1 sm:flex-none px-2 lg:px-3 py-1 bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm"
               >
                 →
               </button>
@@ -190,23 +224,23 @@ const Expenses = () => {
 
         <Card>
           <div className="flex items-center justify-between">
-            <span className="text-gray-400">Total Pengeluaran</span>
-            <span className="text-2xl font-bold text-primary">{formatRupiah(totalExpenses)}</span>
+            <span className="text-sm lg:text-base text-gray-400">Total Pengeluaran</span>
+            <span className="text-lg lg:text-2xl font-bold text-primary">{formatRupiah(totalExpenses)}</span>
           </div>
         </Card>
       </div>
 
       {/* Expenses Table */}
       <Card>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto -mx-4 md:mx-0">
           <table className="w-full">
             <thead>
               <tr className="border-b border-dark-border">
-                <th className="text-left py-3 px-4 text-gray-400 font-semibold">Tanggal</th>
-                <th className="text-left py-3 px-4 text-gray-400 font-semibold">Kategori</th>
-                <th className="text-left py-3 px-4 text-gray-400 font-semibold">Deskripsi</th>
-                <th className="text-right py-3 px-4 text-gray-400 font-semibold">Jumlah</th>
-                <th className="text-center py-3 px-4 text-gray-400 font-semibold">Aksi</th>
+                <th className="text-left py-2 md:py-3 px-3 md:px-4 text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Tanggal</th>
+                <th className="hidden md:table-cell text-left py-2 md:py-3 px-3 md:px-4 text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Kategori</th>
+                <th className="text-left py-2 md:py-3 px-3 md:px-4 text-gray-400 font-semibold text-xs md:text-sm">Deskripsi</th>
+                <th className="text-right py-2 md:py-3 px-3 md:px-4 text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Jumlah</th>
+                <th className="text-center py-2 md:py-3 px-3 md:px-4 text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -215,35 +249,38 @@ const Expenses = () => {
                   key={expense.id}
                   className="border-b border-dark-border hover:bg-dark-cardHover transition-colors"
                 >
-                  <td className="py-3 px-4 text-gray-300">
-                    {formatDate(expense.date)}
+                  <td className="py-2 md:py-3 px-3 md:px-4 text-gray-300 text-xs md:text-sm whitespace-nowrap">
+                    <span className="md:hidden">{formatShortDate(expense.date)}</span>
+                    <span className="hidden md:inline">{formatDate(expense.date)}</span>
                   </td>
-                  <td className="py-3 px-4">
+                  <td className="hidden md:table-cell py-2 md:py-3 px-3 md:px-4">
                     <div className="flex items-center space-x-2">
                       <div 
-                        className="w-3 h-3 rounded-full"
+                        className="w-2 h-2 md:w-3 md:h-3 rounded-full flex-shrink-0"
                         style={{ backgroundColor: expense.category.color }}
                       />
-                      <span className="text-white">{expense.category.name}</span>
+                      <span className="text-white text-xs md:text-sm whitespace-nowrap">{expense.category.name}</span>
                     </div>
                   </td>
-                  <td className="py-3 px-4 text-gray-300">{expense.description}</td>
-                  <td className="text-right py-3 px-4 text-white font-semibold">
+                  <td className="py-2 md:py-3 px-3 md:px-4 text-gray-300 text-xs md:text-sm">
+                    <div className="max-w-[90px] md:max-w-none truncate">{expense.description}</div>
+                  </td>
+                  <td className="text-right py-2 md:py-3 px-3 md:px-4 text-white font-semibold text-xs md:text-sm whitespace-nowrap">
                     {formatRupiah(expense.amount)}
                   </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center justify-center space-x-2">
+                  <td className="py-2 md:py-3 px-3 md:px-4">
+                    <div className="flex items-center justify-center space-x-1 md:space-x-2">
                       <button
                         onClick={() => handleEdit(expense)}
-                        className="p-2 hover:bg-dark-bg rounded-lg transition-colors"
+                        className="p-1.5 md:p-2 hover:bg-dark-bg rounded-lg transition-colors"
                       >
-                        <Edit2 className="w-4 h-4 text-primary" />
+                        <Edit2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
                       </button>
                       <button
                         onClick={() => handleDelete(expense.id)}
-                        className="p-2 hover:bg-dark-bg rounded-lg transition-colors"
+                        className="p-1.5 md:p-2 hover:bg-dark-bg rounded-lg transition-colors"
                       >
-                        <Trash2 className="w-4 h-4 text-red-500" />
+                        <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-red-500" />
                       </button>
                     </div>
                   </td>
