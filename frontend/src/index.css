@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-dark-border;
+  }
+  
+  body {
+    @apply bg-dark-bg text-gray-100 antialiased;
+  }
+  
+  input, textarea, select {
+    @apply bg-dark-card border border-dark-border text-gray-100;
+  }
+  
+  input:focus, textarea:focus, select:focus {
+    @apply outline-none ring-2 ring-primary;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-dark-card rounded-lg shadow-card border border-dark-border;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-glow hover:border-primary;
+  }
+  
+  .btn-primary {
+    @apply bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-danger {
+    @apply bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-success {
+    @apply bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors duration-200;
+  }
+}
