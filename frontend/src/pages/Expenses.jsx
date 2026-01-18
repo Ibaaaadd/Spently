@@ -177,8 +177,8 @@ const Expenses = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 lg:mb-8">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Pengeluaran</h1>
-          <p className="text-sm lg:text-base text-gray-400">Kelola pengeluaran harian Anda</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">Pengeluaran</h1>
+          <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400">Kelola pengeluaran harian Anda</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
@@ -195,26 +195,26 @@ const Expenses = () => {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center space-x-2 lg:space-x-3">
               <Calendar className="w-4 h-4 lg:w-5 lg:h-5 text-primary" />
-              <span className="text-base lg:text-lg font-semibold text-white">
+              <span className="text-base lg:text-lg font-semibold text-gray-900 dark:text-white">
                 {getMonthName(selectedPeriod.month)} {selectedPeriod.year}
               </span>
             </div>
             <div className="flex space-x-1 lg:space-x-2 w-full sm:w-auto">
               <button
                 onClick={() => handleMonthChange(-1)}
-                className="flex-1 sm:flex-none px-2 lg:px-3 py-1 bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm"
+                className="flex-1 sm:flex-none px-2 lg:px-3 py-1 bg-gray-700 dark:bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm text-white"
               >
                 ←
               </button>
               <button
                 onClick={() => setSelectedPeriod(getCurrentMonthYear())}
-                className="flex-1 sm:flex-none px-2 lg:px-3 py-1 bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm"
+                className="flex-1 sm:flex-none px-2 lg:px-3 py-1 bg-gray-700 dark:bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm text-white"
               >
                 Today
               </button>
               <button
                 onClick={() => handleMonthChange(1)}
-                className="flex-1 sm:flex-none px-2 lg:px-3 py-1 bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm"
+                className="flex-1 sm:flex-none px-2 lg:px-3 py-1 bg-gray-700 dark:bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm text-white"
               >
                 →
               </button>
@@ -235,21 +235,21 @@ const Expenses = () => {
         <div className="overflow-x-auto -mx-4 md:mx-0">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-dark-border">
-                <th className="text-left py-2 md:py-3 px-3 md:px-4 text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Tanggal</th>
-                <th className="hidden md:table-cell text-left py-2 md:py-3 px-3 md:px-4 text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Kategori</th>
-                <th className="text-left py-2 md:py-3 px-3 md:px-4 text-gray-400 font-semibold text-xs md:text-sm">Deskripsi</th>
-                <th className="text-right py-2 md:py-3 px-3 md:px-4 text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Jumlah</th>
-                <th className="text-center py-2 md:py-3 px-3 md:px-4 text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Aksi</th>
+              <tr className="border-b border-gray-200 dark:border-dark-border">
+                <th className="text-left py-2 md:py-3 px-3 md:px-4 text-gray-500 dark:text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Tanggal</th>
+                <th className="hidden md:table-cell text-left py-2 md:py-3 px-3 md:px-4 text-gray-500 dark:text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Kategori</th>
+                <th className="text-left py-2 md:py-3 px-3 md:px-4 text-gray-500 dark:text-gray-400 font-semibold text-xs md:text-sm">Deskripsi</th>
+                <th className="text-right py-2 md:py-3 px-3 md:px-4 text-gray-500 dark:text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Jumlah</th>
+                <th className="text-center py-2 md:py-3 px-3 md:px-4 text-gray-500 dark:text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Aksi</th>
               </tr>
             </thead>
             <tbody>
               {expenses.map((expense) => (
                 <tr 
                   key={expense.id}
-                  className="border-b border-dark-border hover:bg-dark-cardHover transition-colors"
+                  className="border-b border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-cardHover transition-colors"
                 >
-                  <td className="py-2 md:py-3 px-3 md:px-4 text-gray-300 text-xs md:text-sm whitespace-nowrap">
+                  <td className="py-2 md:py-3 px-3 md:px-4 text-gray-600 dark:text-gray-300 text-xs md:text-sm whitespace-nowrap">
                     <span className="md:hidden">{formatShortDate(expense.date)}</span>
                     <span className="hidden md:inline">{formatDate(expense.date)}</span>
                   </td>
@@ -259,26 +259,26 @@ const Expenses = () => {
                         className="w-2 h-2 md:w-3 md:h-3 rounded-full flex-shrink-0"
                         style={{ backgroundColor: expense.category.color }}
                       />
-                      <span className="text-white text-xs md:text-sm whitespace-nowrap">{expense.category.name}</span>
+                      <span className="text-gray-900 dark:text-white text-xs md:text-sm whitespace-nowrap">{expense.category.name}</span>
                     </div>
                   </td>
-                  <td className="py-2 md:py-3 px-3 md:px-4 text-gray-300 text-xs md:text-sm">
+                  <td className="py-2 md:py-3 px-3 md:px-4 text-gray-600 dark:text-gray-300 text-xs md:text-sm">
                     <div className="max-w-[90px] md:max-w-none truncate">{expense.description}</div>
                   </td>
-                  <td className="text-right py-2 md:py-3 px-3 md:px-4 text-white font-semibold text-xs md:text-sm whitespace-nowrap">
+                  <td className="text-right py-2 md:py-3 px-3 md:px-4 text-gray-900 dark:text-white font-semibold text-xs md:text-sm whitespace-nowrap">
                     {formatRupiah(expense.amount)}
                   </td>
                   <td className="py-2 md:py-3 px-3 md:px-4">
                     <div className="flex items-center justify-center space-x-1 md:space-x-2">
                       <button
                         onClick={() => handleEdit(expense)}
-                        className="p-1.5 md:p-2 hover:bg-dark-bg rounded-lg transition-colors"
+                        className="p-1.5 md:p-2 hover:bg-gray-100 dark:hover:bg-dark-bg rounded-lg transition-colors"
                       >
                         <Edit2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
                       </button>
                       <button
                         onClick={() => handleDelete(expense.id)}
-                        className="p-1.5 md:p-2 hover:bg-dark-bg rounded-lg transition-colors"
+                        className="p-1.5 md:p-2 hover:bg-gray-100 dark:hover:bg-dark-bg rounded-lg transition-colors"
                       >
                         <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-red-500" />
                       </button>
@@ -375,7 +375,7 @@ const Expenses = () => {
             <button
               type="button"
               onClick={closeModal}
-              className="flex-1 px-4 py-2 bg-dark-cardHover hover:bg-gray-700 rounded-lg transition-colors"
+              className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-dark-cardHover dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-lg transition-colors"
             >
               Batal
             </button>

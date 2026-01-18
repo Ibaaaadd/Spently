@@ -65,8 +65,8 @@ const Dashboard = () => {
     <div className="p-4 lg:p-8">
       {/* Header */}
       <div className="mb-6 lg:mb-8">
-        <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Dashboard</h1>
-        <p className="text-sm lg:text-base text-gray-400">Ringkasan pengeluaran bulanan Anda</p>
+        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">Dashboard</h1>
+        <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400">Ringkasan pengeluaran bulanan Anda</p>
       </div>
 
       {/* Period Selector */}
@@ -74,26 +74,26 @@ const Dashboard = () => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center space-x-2 lg:space-x-3">
             <Calendar className="w-4 h-4 lg:w-5 lg:h-5 text-primary" />
-            <span className="text-base lg:text-lg font-semibold text-white">
+            <span className="text-base lg:text-lg font-semibold text-gray-900 dark:text-white">
               {getMonthName(selectedPeriod.month)} {selectedPeriod.year}
             </span>
           </div>
           <div className="flex space-x-2 w-full sm:w-auto">
             <button
               onClick={() => handleMonthChange(-1)}
-              className="flex-1 sm:flex-none px-3 lg:px-4 py-2 bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm lg:text-base"
+              className="flex-1 sm:flex-none px-3 lg:px-4 py-2 bg-gray-700 dark:bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm lg:text-base text-white"
             >
               ← Prev
             </button>
             <button
               onClick={() => setSelectedPeriod(getCurrentMonthYear())}
-              className="flex-1 sm:flex-none px-3 lg:px-4 py-2 bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm lg:text-base"
+              className="flex-1 sm:flex-none px-3 lg:px-4 py-2 bg-gray-700 dark:bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm lg:text-base text-white"
             >
               Today
             </button>
             <button
               onClick={() => handleMonthChange(1)}
-              className="flex-1 sm:flex-none px-3 lg:px-4 py-2 bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm lg:text-base"
+              className="flex-1 sm:flex-none px-3 lg:px-4 py-2 bg-gray-700 dark:bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm lg:text-base text-white"
             >
               Next →
             </button>
@@ -127,11 +127,11 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pie Chart */}
         <Card>
-          <h3 className="text-xl font-bold text-white mb-4">Komposisi Pengeluaran</h3>
-          {summary?.breakdown_per_kategori?.length > 0 ? (
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Komposisi Pengeluaran</h3>
+          {summary?.breakdown_per_kategori && summary.breakdown_per_kategori.length > 0 ? (
             <ExpensePieChart data={summary.breakdown_per_kategori} />
           ) : (
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
               <AlertCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>Belum ada data pengeluaran</p>
             </div>
@@ -140,12 +140,12 @@ const Dashboard = () => {
 
         {/* Top 3 Categories */}
         <Card>
-          <h3 className="text-lg md:text-xl font-bold text-white mb-3 md:mb-4">Top 3 Kategori Terbesar</h3>
+          <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-3 md:mb-4">Top 3 Kategori Terbesar</h3>
           <div className="space-y-3 md:space-y-4">
             {summary?.top_3_kategori?.map((category, index) => (
               <div 
                 key={category.id}
-                className="flex items-center justify-between p-3 md:p-4 bg-dark-bg rounded-lg hover:bg-dark-cardHover transition-colors"
+                className="flex items-center justify-between p-3 md:p-4 bg-gray-50 dark:bg-dark-bg rounded-lg hover:bg-gray-100 dark:hover:bg-dark-cardHover transition-colors"
               >
                 <div className="flex items-center space-x-2 md:space-x-4 flex-1 min-w-0">
                   <div 
@@ -155,18 +155,18 @@ const Dashboard = () => {
                     {index + 1}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-white text-sm md:text-base truncate">{category.name}</p>
-                    <p className="text-xs md:text-sm text-gray-400">{category.count} transaksi</p>
+                    <p className="font-semibold text-gray-900 dark:text-white text-sm md:text-base truncate">{category.name}</p>
+                    <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">{category.count} transaksi</p>
                   </div>
                 </div>
                 <div className="text-right flex-shrink-0 ml-2">
-                  <p className="font-bold text-white text-sm md:text-base">{formatRupiah(category.total)}</p>
+                  <p className="font-bold text-gray-900 dark:text-white text-sm md:text-base">{formatRupiah(category.total)}</p>
                   <p className="text-xs md:text-sm text-primary">{category.percentage}%</p>
                 </div>
               </div>
             ))}
             {(!summary?.top_3_kategori || summary.top_3_kategori.length === 0) && (
-              <div className="text-center py-8 text-gray-400">
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                 <p>Belum ada data kategori</p>
               </div>
             )}
@@ -176,38 +176,38 @@ const Dashboard = () => {
 
       {/* All Categories Breakdown */}
       {summary?.breakdown_per_kategori?.length > 0 && (
-        <Card className="mt-4 md:mt-6">
-          <h3 className="text-lg md:text-xl font-bold text-white mb-3 md:mb-4">Breakdown Semua Kategori</h3>
-          <div className="overflow-x-auto -mx-4 md:mx-0">
+        <Card className="mt-4 lg:mt-6">
+          <h3 className="text-lg lg:text-xl font-bold text-gray-900 dark:text-white mb-3 lg:mb-4">Breakdown Semua Kategori</h3>
+          <div className="overflow-x-auto -mx-4 lg:mx-0">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-dark-border">
-                  <th className="text-left py-2 md:py-3 px-3 md:px-4 text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Kategori</th>
-                  <th className="text-right py-2 md:py-3 px-3 md:px-4 text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Transaksi</th>
-                  <th className="text-right py-2 md:py-3 px-3 md:px-4 text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Total</th>
-                  <th className="text-right py-2 md:py-3 px-3 md:px-4 text-gray-400 font-semibold text-xs md:text-sm whitespace-nowrap">Persentase</th>
+                <tr className="border-b border-gray-200 dark:border-dark-border">
+                  <th className="text-left py-2 lg:py-3 px-3 lg:px-4 text-gray-500 dark:text-gray-400 font-semibold text-xs lg:text-sm whitespace-nowrap">Kategori</th>
+                  <th className="text-right py-2 lg:py-3 px-3 lg:px-4 text-gray-500 dark:text-gray-400 font-semibold text-xs lg:text-sm whitespace-nowrap">Transaksi</th>
+                  <th className="text-right py-2 lg:py-3 px-3 lg:px-4 text-gray-500 dark:text-gray-400 font-semibold text-xs lg:text-sm whitespace-nowrap">Total</th>
+                  <th className="text-right py-2 lg:py-3 px-3 lg:px-4 text-gray-500 dark:text-gray-400 font-semibold text-xs lg:text-sm whitespace-nowrap">Persentase</th>
                 </tr>
               </thead>
               <tbody>
                 {summary.breakdown_per_kategori.map((category) => (
                   <tr 
                     key={category.id}
-                    className="border-b border-dark-border hover:bg-dark-cardHover transition-colors"
+                    className="border-b border-gray-200 dark:border-dark-border hover:bg-gray-50 dark:hover:bg-dark-cardHover transition-colors"
                   >
-                    <td className="py-2 md:py-3 px-3 md:px-4">
-                      <div className="flex items-center space-x-2 md:space-x-3">
+                    <td className="py-2 lg:py-3 px-3 lg:px-4">
+                      <div className="flex items-center space-x-2 lg:space-x-3">
                         <div 
-                          className="w-3 h-3 md:w-4 md:h-4 rounded-full flex-shrink-0"
+                          className="w-3 h-3 lg:w-4 lg:h-4 rounded-full flex-shrink-0"
                           style={{ backgroundColor: category.color }}
                         />
-                        <span className="text-white text-sm md:text-base whitespace-nowrap">{category.name}</span>
+                        <span className="text-gray-900 dark:text-white text-sm lg:text-base whitespace-nowrap">{category.name}</span>
                       </div>
                     </td>
-                    <td className="text-right py-2 md:py-3 px-3 md:px-4 text-gray-300 text-sm md:text-base">{category.count}</td>
-                    <td className="text-right py-2 md:py-3 px-3 md:px-4 text-white font-semibold text-sm md:text-base whitespace-nowrap">
+                    <td className="text-right py-2 lg:py-3 px-3 lg:px-4 text-gray-600 dark:text-gray-300 text-sm lg:text-base">{category.count}</td>
+                    <td className="text-right py-2 lg:py-3 px-3 lg:px-4 text-gray-900 dark:text-white font-semibold text-sm lg:text-base whitespace-nowrap">
                       {formatRupiah(category.total)}
                     </td>
-                    <td className="text-right py-2 md:py-3 px-3 md:px-4 text-primary font-semibold text-sm md:text-base">
+                    <td className="text-right py-2 lg:py-3 px-3 lg:px-4 text-primary font-semibold text-sm lg:text-base">
                       {category.percentage}%
                     </td>
                   </tr>

@@ -118,8 +118,8 @@ const Categories = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 lg:mb-8">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Kategori</h1>
-          <p className="text-sm lg:text-base text-gray-400">Kelola kategori pengeluaran Anda</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">Kategori</h1>
+          <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400">Kelola kategori pengeluaran Anda</p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
@@ -143,29 +143,29 @@ const Categories = () => {
                   <FolderOpen className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">{category.name}</h3>
-                  <p className="text-sm text-gray-400">{category.color}</p>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">{category.name}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{category.color}</p>
                 </div>
               </div>
               <div className="flex space-x-2">
                 <button
                   onClick={() => handleEdit(category)}
-                  className="p-2 hover:bg-dark-cardHover rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-dark-cardHover rounded-lg transition-colors"
                 >
                   <Edit2 className="w-4 h-4 text-primary" />
                 </button>
                 <button
                   onClick={() => handleDelete(category.id)}
-                  className="p-2 hover:bg-dark-cardHover rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-dark-cardHover rounded-lg transition-colors"
                 >
                   <Trash2 className="w-4 h-4 text-red-500" />
                 </button>
               </div>
             </div>
-            <div className="pt-4 border-t border-dark-border">
+            <div className="pt-4 border-t border-gray-200 dark:border-dark-border">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Transaksi</span>
-                <span className="text-white font-semibold">{category.expenses_count || 0}</span>
+                <span className="text-gray-500 dark:text-gray-400">Transaksi</span>
+                <span className="text-gray-900 dark:text-white font-semibold">{category.expenses_count || 0}</span>
               </div>
             </div>
           </Card>
@@ -174,8 +174,8 @@ const Categories = () => {
 
       {categories.length === 0 && (
         <Card className="text-center py-12">
-          <FolderOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-          <p className="text-gray-400 mb-4">Belum ada kategori</p>
+          <FolderOpen className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-500 dark:text-gray-400 mb-4">Belum ada kategori</p>
           <button
             onClick={() => setIsModalOpen(true)}
             className="btn-primary"
@@ -234,7 +234,7 @@ const Categories = () => {
             <button
               type="button"
               onClick={closeModal}
-              className="flex-1 px-4 py-2 bg-dark-cardHover hover:bg-gray-700 rounded-lg transition-colors"
+              className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-dark-cardHover dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-lg transition-colors"
             >
               Batal
             </button>
