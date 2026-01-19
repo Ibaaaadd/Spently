@@ -12,7 +12,9 @@ class ExpenseController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Expense::with('category')->orderBy('date', 'desc');
+        $query = Expense::where('user_id', $request->user()->id)
+            ->with('category')
+            ->orderBy('date', 'desc');
 
         if ($request->has('month') && $request->has('year')) {
             $query->whereMonth('date', $request->month)
@@ -73,7 +75,13 @@ class ExpenseController extends Controller
             ], 422);
         }
 
-        $expense = Expense::create($request->all());
+        $expense = Expense::create([
+            'user_id' => $request->user()->id,
+            'date' => $request->date,
+            'category_id' => $request->category_id,
+            'description' => $request->description,
+            'amount' => $request->amount,
+        ]);
         $expense->load('category');
 
         return response()->json([
@@ -83,9 +91,11 @@ class ExpenseController extends Controller
         ], 201);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $expense = Expense::with('category')->find($id);
+        $expense = Expense::where('user_id', $request->user()->id)
+            ->with('category')
+            ->find($id);
 
         if (!$expense) {
             return response()->json([
@@ -102,7 +112,7 @@ class ExpenseController extends Controller
 
     public function update(Request $request, $id)
     {
-        $expense = Expense::find($id);
+        $expense = Expense::where('user_id', $request->user()->id)->find($id);
 
         if (!$expense) {
             return response()->json([
@@ -125,7 +135,7 @@ class ExpenseController extends Controller
             ], 422);
         }
 
-        $expense->update($request->all());
+        $expense->update($request->only(['date', 'category_id', 'description', 'amount']));
         $expense->load('category');
 
         return response()->json([
@@ -135,9 +145,9 @@ class ExpenseController extends Controller
         ]);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $expense = Expense::find($id);
+        $expense = Expense::where('user_id', $request->user()->id)->find($id);
 
         if (!$expense) {
             return response()->json([
@@ -170,8 +180,10 @@ class ExpenseController extends Controller
 
         $month = $request->month;
         $year = $request->year;
+        $userId = $request->user()->id;
 
-        $totalBulanan = Expense::whereMonth('date', $month)
+        $totalBulanan = Expense::where('user_id', $userId)
+            ->whereMonth('date', $month)
             ->whereYear('date', $year)
             ->sum('amount');
 
@@ -184,6 +196,7 @@ class ExpenseController extends Controller
                 DB::raw('SUM(expenses.amount) as total'),
                 DB::raw('COUNT(expenses.id) as count')
             )
+            ->where('expenses.user_id', $userId)
             ->whereMonth('expenses.date', $month)
             ->whereYear('expenses.date', $year)
             ->groupBy('categories.id', 'categories.name', 'categories.color')

@@ -12,9 +12,10 @@ class CategoryController extends Controller
     /**
      * Display a listing of categories
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::withCount('expenses')
+        $categories = Category::where('user_id', $request->user()->id)
+            ->withCount('expenses')
             ->withSum('expenses', 'amount')
             ->orderBy('name')
             ->get();
@@ -31,7 +32,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:categories',
+            'name' => 'required|string|max:255',
             'color' => 'required|string|regex:/^#[0-9A-F]{6}$/i',
         ]);
 
@@ -42,7 +43,11 @@ class CategoryController extends Controller
             ], 422);
         }
 
-        $category = Category::create($request->only(['name', 'color']));
+        $category = Category::create([
+            'user_id' => $request->user()->id,
+            'name' => $request->name,
+            'color' => $request->color,
+        ]);
 
         return response()->json([
             'success' => true,
@@ -54,9 +59,11 @@ class CategoryController extends Controller
     /**
      * Display the specified category
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $category = Category::with('expenses')->find($id);
+        $category = Category::where('user_id', $request->user()->id)
+            ->with('expenses')
+            ->find($id);
 
         if (!$category) {
             return response()->json([
@@ -76,7 +83,7 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $category = Category::find($id);
+        $category = Category::where('user_id', $request->user()->id)->find($id);
 
         if (!$category) {
             return response()->json([
@@ -86,7 +93,7 @@ class CategoryController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:categories,name,' . $id,
+            'name' => 'required|string|max:255',
             'color' => 'required|string|regex:/^#[0-9A-F]{6}$/i',
         ]);
 
@@ -109,9 +116,9 @@ class CategoryController extends Controller
     /**
      * Remove the specified category
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $category = Category::find($id);
+        $category = Category::where('user_id', $request->user()->id)->find($id);
 
         if (!$category) {
             return response()->json([
