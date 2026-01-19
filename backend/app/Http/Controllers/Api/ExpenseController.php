@@ -19,6 +19,20 @@ class ExpenseController extends Controller
                   ->whereYear('date', $request->year);
         }
 
+        // Date range filter
+        if ($request->has('start_date') && $request->start_date) {
+            $query->whereDate('date', '>=', $request->start_date);
+        }
+        
+        if ($request->has('end_date') && $request->end_date) {
+            $query->whereDate('date', '<=', $request->end_date);
+        }
+
+        // Category filter
+        if ($request->has('category_id') && $request->category_id) {
+            $query->where('category_id', $request->category_id);
+        }
+
         // Calculate total sum before pagination
         $totalSum = (clone $query)->sum('amount');
 

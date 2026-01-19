@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Receipt, Calendar } from 'lucide-react';
+import { Plus, Edit2, Trash2, Receipt, Calendar, Wallet } from 'lucide-react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import Swal from 'sweetalert2';
 import Toast from '../utils/toast';
 import Card from '../components/Card';
@@ -16,6 +18,11 @@ const Expenses = () => {
   const [editingExpense, setEditingExpense] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState(getCurrentMonthYear());
   const [currentPage, setCurrentPage] = useState(1);
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [startDate, endDate] = dateRange;
+  const [filters, setFilters] = useState({
+    categoryId: ''
+  });
   const [paginationMeta, setPaginationMeta] = useState({
     total: 0,
     per_page: 10,
@@ -37,7 +44,7 @@ const Expenses = () => {
   useEffect(() => {
     setCurrentPage(1);
     fetchExpenses(1);
-  }, [selectedPeriod]);
+  }, [selectedPeriod, startDate, endDate, filters]);
 
   useEffect(() => {
     fetchExpenses(currentPage);
@@ -58,7 +65,10 @@ const Expenses = () => {
       const params = {
         ...selectedPeriod,
         page: page,
-        per_page: 10
+        per_page: 10,
+        ...(startDate && { start_date: startDate.toISOString().split('T')[0] }),
+        ...(endDate && { end_date: endDate.toISOString().split('T')[0] }),
+        ...(filters.categoryId && { category_id: filters.categoryId })
       };
       const response = await getExpenses(params);
       setExpenses(response.data.data);
@@ -183,6 +193,17 @@ const Expenses = () => {
     setCurrentPage(page);
   };
 
+  const handleFilterChange = (field, value) => {
+    setFilters(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleResetFilters = () => {
+    setDateRange([null, null]);
+    setFilters({
+      categoryId: ''
+    });
+  };
+
   const totalExpenses = paginationMeta.total_sum || 0;
 
   // Define table columns
@@ -273,46 +294,78 @@ const Expenses = () => {
         </button>
       </div>
 
-      {/* Period & Total */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-6 mb-4 lg:mb-6">
-        <Card>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-center space-x-2 lg:space-x-3">
-              <Calendar className="w-4 h-4 lg:w-5 lg:h-5 text-primary" />
-              <span className="text-base lg:text-lg font-semibold text-gray-900 dark:text-white">
-                {getMonthName(selectedPeriod.month)} {selectedPeriod.year}
+      {/* Period, Total & Filters */}
+      <Card className="mb-4 lg:mb-6">
+        <div className="space-y-4">
+          {/* Period & Total Row */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            {/* Period Display */}
+            <div className="flex items-center space-x-2">
+              <Calendar className="w-5 h-5 text-primary" />
+              <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                {startDate && endDate 
+                  ? `${startDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} - ${endDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}`
+                  : `${getMonthName(selectedPeriod.month)} ${selectedPeriod.year}`
+                }
               </span>
             </div>
-            <div className="flex space-x-1 lg:space-x-2 w-full sm:w-auto">
-              <button
-                onClick={() => handleMonthChange(-1)}
-                className="flex-1 sm:flex-none px-2 lg:px-3 py-1 bg-gray-700 dark:bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm text-white"
+            
+            {/* Total */}
+            <div className="flex items-center gap-2">
+              <Wallet className="w-5 h-5 text-primary" />
+              <span className="text-xl font-bold text-primary">{formatRupiah(totalExpenses)}</span>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-gray-200 dark:border-dark-border"></div>
+
+          {/* Filters Row */}
+          <div className="flex flex-col sm:flex-row gap-3 items-end">
+            <div className="flex-1 w-full">
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                Rentang Tanggal
+              </label>
+              <DatePicker
+                selectsRange={true}
+                startDate={startDate}
+                endDate={endDate}
+                onChange={(update) => {
+                  setDateRange(update);
+                }}
+                isClearable={true}
+                placeholderText="Pilih rentang tanggal"
+                dateFormat="dd/MM/yyyy"
+                className="w-full px-3 py-2 bg-white dark:bg-dark-bg border border-gray-300 dark:border-dark-border rounded-lg text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                wrapperClassName="w-full"
+              />
+            </div>
+            <div className="flex-1 w-full">
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                Kategori
+              </label>
+              <select
+                value={filters.categoryId}
+                onChange={(e) => handleFilterChange('categoryId', e.target.value)}
+                className="w-full px-3 py-2 bg-white dark:bg-dark-bg border border-gray-300 dark:border-dark-border rounded-lg text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
               >
-                ←
-              </button>
+                <option value="">Semua Kategori</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="w-full sm:w-auto">
               <button
-                onClick={() => setSelectedPeriod(getCurrentMonthYear())}
-                className="flex-1 sm:flex-none px-2 lg:px-3 py-1 bg-gray-700 dark:bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm text-white"
+                onClick={handleResetFilters}
+                className="w-full sm:w-auto px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-dark-cardHover dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-lg transition-colors text-sm font-medium"
               >
-                Today
-              </button>
-              <button
-                onClick={() => handleMonthChange(1)}
-                className="flex-1 sm:flex-none px-2 lg:px-3 py-1 bg-gray-700 dark:bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-sm text-white"
-              >
-                →
+                Reset
               </button>
             </div>
           </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center justify-between">
-            <span className="text-sm lg:text-base text-gray-400">Total Pengeluaran</span>
-            <span className="text-lg lg:text-2xl font-bold text-primary">{formatRupiah(totalExpenses)}</span>
-          </div>
-        </Card>
-      </div>
+        </div>
+      </Card>
 
       {/* Expenses Table */}
       <Card>
