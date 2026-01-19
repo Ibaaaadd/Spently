@@ -19,11 +19,27 @@ class ExpenseController extends Controller
                   ->whereYear('date', $request->year);
         }
 
-        $expenses = $query->get();
+        // Calculate total sum before pagination
+        $totalSum = (clone $query)->sum('amount');
+
+        // Pagination parameters
+        $perPage = $request->get('per_page', 10); // Default 10 items per page
+        $page = $request->get('page', 1);
+
+        $expenses = $query->paginate($perPage);
 
         return response()->json([
             'success' => true,
-            'data' => $expenses
+            'data' => $expenses->items(),
+            'meta' => [
+                'current_page' => $expenses->currentPage(),
+                'last_page' => $expenses->lastPage(),
+                'per_page' => $expenses->perPage(),
+                'total' => $expenses->total(),
+                'from' => $expenses->firstItem(),
+                'to' => $expenses->lastItem(),
+                'total_sum' => (float) $totalSum,
+            ]
         ]);
     }
 

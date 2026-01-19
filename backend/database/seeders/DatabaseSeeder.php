@@ -41,6 +41,14 @@ class DatabaseSeeder extends Seeder
             ['date' => '2026-01-17', 'category_id' => 4, 'description' => 'Nonton bioskop', 'amount' => 50000],
             ['date' => '2026-01-18', 'category_id' => 2, 'description' => 'Ojek online', 'amount' => 25000],
             ['date' => '2026-01-18', 'category_id' => 1, 'description' => 'Kopi dan snack', 'amount' => 35000],
+            ['date' => '2026-01-19', 'category_id' => 1, 'description' => 'Obat dan vitamin', 'amount' => 80000],
+            ['date' => '2026-01-19', 'category_id' => 6, 'description' => 'Buku pelajaran', 'amount' => 120000],
+            ['date' => '2026-01-20', 'category_id' => 1, 'description' => 'Obat dan vitamin', 'amount' => 80000],
+            ['date' => '2026-01-20', 'category_id' => 6, 'description' => 'Buku pelajaran', 'amount' => 120000],
+            ['date' => '2026-01-14', 'category_id' => 1, 'description' => 'Obat dan vitamin', 'amount' => 80000],
+            ['date' => '2026-01-14', 'category_id' => 6, 'description' => 'Buku pelajaran', 'amount' => 120000],
+            ['date' => '2026-01-14', 'category_id' => 1, 'description' => 'Obat dan vitamin', 'amount' => 80000],
+            ['date' => '2026-01-13', 'category_id' => 6, 'description' => 'Buku pelajaran', 'amount' => 120000],
         ];
 
         foreach ($expenses as $expense) {
