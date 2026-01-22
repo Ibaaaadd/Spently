@@ -7,6 +7,12 @@ use App\Models\Expense;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Font;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 
 class ExpenseController extends Controller
 {
@@ -224,5 +230,157 @@ class ExpenseController extends Controller
                 'kategori_paling_boros' => $mostExpensive
             ]
         ]);
+    }
+
+    public function export(Request $request)
+    {
+        $query = Expense::where('user_id', $request->user()->id)
+            ->with('category')
+            ->orderBy('date', 'desc');
+
+        // Build filter info
+        $filterInfo = [];
+        $monthNames = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        if ($request->has('month') && $request->has('year')) {
+            $query->whereMonth('date', $request->month)
+                  ->whereYear('date', $request->year);
+            $filterInfo[] = $monthNames[$request->month] . ' ' . $request->year;
+        }
+
+        // Date range filter
+        if ($request->has('start_date') && $request->start_date) {
+            $query->whereDate('date', '>=', $request->start_date);
+            $startDate = date('d/m/y', strtotime($request->start_date));
+            if ($request->has('end_date') && $request->end_date) {
+                $query->whereDate('date', '<=', $request->end_date);
+                $endDate = date('d/m/y', strtotime($request->end_date));
+                $filterInfo[] = "Periode: {$startDate} - {$endDate}";
+            } else {
+                $filterInfo[] = "Dari: {$startDate}";
+            }
+        } elseif ($request->has('end_date') && $request->end_date) {
+            $query->whereDate('date', '<=', $request->end_date);
+            $endDate = date('d/m/y', strtotime($request->end_date));
+            $filterInfo[] = "Sampai: {$endDate}";
+        }
+
+        // Category filter
+        if ($request->has('category_id') && $request->category_id) {
+            $query->where('category_id', $request->category_id);
+            $category = \App\Models\Category::find($request->category_id);
+            if ($category) {
+                $filterInfo[] = "Kategori: {$category->name}";
+            }
+        }
+
+        $expenses = $query->get();
+
+        // Create new Spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set sheet name based on filter
+        $sheetName = 'Pengeluaran';
+        if (!empty($filterInfo)) {
+            $sheetName = $filterInfo[0]; // Use first filter (month/year or date range)
+            $sheetName = str_replace(['/', ':', '|'], '-', $sheetName); // Excel safe name
+            $sheetName = substr($sheetName, 0, 31); // Excel max 31 chars
+        }
+        $sheet->setTitle($sheetName);
+        
+        $row = 1;
+        
+        // Title - Bold and larger
+        $sheet->setCellValue('A' . $row, 'LAPORAN PENGELUARAN SPENTLY');
+        $sheet->mergeCells('A' . $row . ':D' . $row);
+        $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(16);
+        $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $row++;
+        
+        // Filter info
+        if (!empty($filterInfo)) {
+            $sheet->setCellValue('A' . $row, implode(' | ', $filterInfo));
+            $sheet->mergeCells('A' . $row . ':D' . $row);
+            $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(12);
+            $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $row++;
+        }
+        
+        // Print date
+        $sheet->setCellValue('A' . $row, 'Dicetak pada: ' . date('d/m/Y H:i'));
+        $sheet->mergeCells('A' . $row . ':D' . $row);
+        $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $row++;
+        
+        $row++; // Empty row
+        
+        // Column headers - Bold with background color
+        $headerRow = $row;
+        $sheet->setCellValue('A' . $row, 'Tanggal');
+        $sheet->setCellValue('B' . $row, 'Kategori');
+        $sheet->setCellValue('C' . $row, 'Deskripsi');
+        $sheet->setCellValue('D' . $row, 'Jumlah (Rp)');
+        
+        $sheet->getStyle('A' . $row . ':D' . $row)->getFont()->setBold(true)->setSize(11);
+        $sheet->getStyle('A' . $row . ':D' . $row)->getFill()
+            ->setFillType(Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('4CAF50');
+        $sheet->getStyle('A' . $row . ':D' . $row)->getFont()->getColor()->setRGB('FFFFFF');
+        $sheet->getStyle('A' . $row . ':D' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $row++;
+        
+        // Data rows
+        foreach ($expenses as $expense) {
+            $sheet->setCellValue('A' . $row, date('d/m/y', strtotime($expense->date)));
+            $sheet->setCellValue('B' . $row, $expense->category->name);
+            $sheet->setCellValue('C' . $row, $expense->description);
+            $sheet->setCellValue('D' . $row, 'Rp ' . number_format($expense->amount, 0, ',', '.'));
+            $row++;
+        }
+        
+        $row++; // Empty row
+        
+        // Summary - Bold
+        $total = $expenses->sum('amount');
+        $sheet->setCellValue('C' . $row, 'TOTAL PENGELUARAN:');
+        $sheet->setCellValue('D' . $row, 'Rp ' . number_format($total, 0, ',', '.'));
+        $sheet->getStyle('C' . $row . ':D' . $row)->getFont()->setBold(true)->setSize(12);
+        $row++;
+        
+        $sheet->setCellValue('C' . $row, 'JUMLAH TRANSAKSI:');
+        $sheet->setCellValue('D' . $row, count($expenses) . ' transaksi');
+        $sheet->getStyle('C' . $row . ':D' . $row)->getFont()->setBold(true);
+        
+        // Set column widths for better spacing
+        $sheet->getColumnDimension('A')->setWidth(15);
+        $sheet->getColumnDimension('B')->setWidth(25);
+        $sheet->getColumnDimension('C')->setWidth(45);
+        $sheet->getColumnDimension('D')->setWidth(20);
+        
+        // Add borders to data table
+        $lastDataRow = $row - 2;
+        $sheet->getStyle('A' . $headerRow . ':D' . $lastDataRow)
+            ->getBorders()->getAllBorders()
+            ->setBorderStyle(Border::BORDER_THIN);
+        
+        // Align amounts to right
+        $sheet->getStyle('D' . ($headerRow + 1) . ':D' . $lastDataRow)
+            ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        
+        // Create temporary file
+        $fileName = 'Pengeluaran_Spently_' . date('Y-m-d_His') . '.xlsx';
+        $tempFile = tempnam(sys_get_temp_dir(), 'excel_');
+        
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($tempFile);
+        
+        return response()->download($tempFile, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
     }
 }

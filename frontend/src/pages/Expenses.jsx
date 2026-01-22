@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Receipt, Calendar, Wallet } from 'lucide-react';
+import { Plus, Edit2, Trash2, Receipt, Calendar, Wallet, Download } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Swal from 'sweetalert2';
@@ -7,7 +7,7 @@ import Toast from '../utils/toast';
 import Card from '../components/Card';
 import Modal from '../components/Modal';
 import DataTable from '../components/DataTable';
-import { getExpenses, createExpense, updateExpense, deleteExpense, getCategories } from '../services/api';
+import { getExpenses, createExpense, updateExpense, deleteExpense, getCategories, exportExpenses } from '../services/api';
 import { formatRupiah, formatDate, formatShortDate, getCurrentMonthYear, getMonthName } from '../utils/helpers';
 
 const Expenses = () => {
@@ -204,6 +204,52 @@ const Expenses = () => {
     });
   };
 
+  const handleExport = async () => {
+    try {
+      const params = {
+        ...selectedPeriod,
+        ...(startDate && { start_date: startDate.toISOString().split('T')[0] }),
+        ...(endDate && { end_date: endDate.toISOString().split('T')[0] }),
+        ...(filters.categoryId && { category_id: filters.categoryId })
+      };
+      
+      const response = await exportExpenses(params);
+      
+      // Extract filename from Content-Disposition header if available
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'Pengeluaran_Spently.xlsx';
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+)"?/i);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      }
+      
+      // Create blob link to download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      Toast.fire({
+        icon: 'success',
+        title: 'Data berhasil diexport!'
+      });
+    } catch (error) {
+      console.error('Error exporting expenses:', error);
+      Toast.fire({
+        icon: 'error',
+        title: 'Gagal export data'
+      });
+    }
+  };
+
   const totalExpenses = paginationMeta.total_sum || 0;
 
   // Define table columns
@@ -285,13 +331,22 @@ const Expenses = () => {
           <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">Pengeluaran</h1>
           <p className="text-sm lg:text-base text-gray-600 dark:text-gray-400">Kelola pengeluaran harian Anda</p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="btn-primary flex items-center space-x-2 w-full sm:w-auto justify-center"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Tambah Pengeluaran</span>
-        </button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <button
+            onClick={handleExport}
+            className="flex-1 sm:flex-initial px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center justify-center space-x-2"
+          >
+            <Download className="w-5 h-5" />
+            <span>Export Excel</span>
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex-1 sm:flex-initial btn-primary flex items-center space-x-2 justify-center"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Tambah</span>
+          </button>
+        </div>
       </div>
 
       {/* Period, Total & Filters */}
