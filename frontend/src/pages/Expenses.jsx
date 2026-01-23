@@ -20,6 +20,15 @@ const Expenses = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
+
+  // Helper function to format date to YYYY-MM-DD in local timezone
+  const formatDateLocal = (date) => {
+    if (!date) return null;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
   const [filters, setFilters] = useState({
     categoryId: ''
   });
@@ -63,11 +72,12 @@ const Expenses = () => {
     try {
       setLoading(true);
       const params = {
-        ...selectedPeriod,
+        // Only send month/year if date range is not active
+        ...((!startDate && !endDate) ? selectedPeriod : {}),
         page: page,
         per_page: 10,
-        ...(startDate && { start_date: startDate.toISOString().split('T')[0] }),
-        ...(endDate && { end_date: endDate.toISOString().split('T')[0] }),
+        ...(startDate && { start_date: formatDateLocal(startDate) }),
+        ...(endDate && { end_date: formatDateLocal(endDate) }),
         ...(filters.categoryId && { category_id: filters.categoryId })
       };
       const response = await getExpenses(params);
@@ -207,9 +217,9 @@ const Expenses = () => {
   const handleExport = async () => {
     try {
       const params = {
-        ...selectedPeriod,
-        ...(startDate && { start_date: startDate.toISOString().split('T')[0] }),
-        ...(endDate && { end_date: endDate.toISOString().split('T')[0] }),
+        ...((!startDate && !endDate) ? selectedPeriod : {}),
+        ...(startDate && { start_date: formatDateLocal(startDate) }),
+        ...(endDate && { end_date: formatDateLocal(endDate) }),
         ...(filters.categoryId && { category_id: filters.categoryId })
       };
       
