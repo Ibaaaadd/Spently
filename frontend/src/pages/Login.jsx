@@ -16,12 +16,6 @@ const Login = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  // Redirect jika sudah login
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/', { replace: true });
-    }
-  }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -33,49 +27,56 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    if (loading) return;
+    
     setLoading(true);
 
     try {
       await login(formData.email, formData.password);
       
-      // Toast notification - lebih subtle
       const Toast = Swal.mixin({
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
         timer: 3000,
         timerProgressBar: true,
+      });
+      
+      await Toast.fire({
+        icon: 'success',
+        title: 'Login berhasil! 👋'
+      });
+      
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 500);
+      
+    } catch (error) {
+      const errorMessage = error?.message || error?.response?.data?.message || 'Email atau password tidak sesuai';
+      
+      await Swal.fire({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 5000,
+        timerProgressBar: true,
+        icon: 'error',
+        title: 'Login Gagal',
+        text: errorMessage,
         didOpen: (toast) => {
           toast.addEventListener('mouseenter', Swal.stopTimer);
           toast.addEventListener('mouseleave', Swal.resumeTimer);
         }
       });
       
-      Toast.fire({
-        icon: 'success',
-        title: 'Login berhasil! Selamat datang kembali 👋'
-      });
-      
-      // Redirect ke dashboard
-      navigate('/', { replace: true });
-    } catch (error) {
-      // Toast notification untuk error - buat instance baru setiap kali
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        icon: 'error',
-        title: error.message || 'Email atau password salah'
-      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleLogin = () => {
-    // TODO: Implement Google OAuth
     Swal.fire({
       icon: 'info',
       title: 'Google Login',

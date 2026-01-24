@@ -15,6 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
+        
+        $middleware->trimStrings(except: [
+            'password',
+            'password_confirmation',
+            'current_password',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

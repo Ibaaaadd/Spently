@@ -70,8 +70,8 @@ class AuthController extends Controller
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'success' => false,
-                'message' => 'Email atau password salah'
-            ], 401);
+                'message' => 'Email atau password tidak sesuai. Silakan cek kembali email dan password Anda.'
+            ], 401)->header('Content-Type', 'application/json');
         }
 
         $user = User::where('email', $request->email)->firstOrFail();

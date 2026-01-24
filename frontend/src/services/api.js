@@ -27,22 +27,26 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      const isLoginRequest = error.config?.url?.includes('/login');
+      const isRegisterRequest = error.config?.url?.includes('/register');
+      const isOnAuthPage = window.location.pathname === '/login' || window.location.pathname === '/register';
+      const hasToken = localStorage.getItem('token');
+      
+      if (!isLoginRequest && !isRegisterRequest && !isOnAuthPage && hasToken) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
 );
 
-// Categories
 export const getCategories = () => api.get('/categories');
 export const createCategory = (data) => api.post('/categories', data);
 export const updateCategory = (id, data) => api.put(`/categories/${id}`, data);
 export const deleteCategory = (id) => api.delete(`/categories/${id}`);
 
-// Expenses
 export const getExpenses = (params) => api.get('/expenses', { params });
 export const createExpense = (data) => api.post('/expenses', data);
 export const updateExpense = (id, data) => api.put(`/expenses/${id}`, data);
@@ -52,7 +56,6 @@ export const exportExpenses = (params) => api.get('/expenses/export', {
   responseType: 'blob'
 });
 
-// Summary
 export const getSummary = (month, year) => 
   api.get('/expenses/summary', { params: { month, year } });
 
