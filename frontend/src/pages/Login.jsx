@@ -60,7 +60,7 @@ const Login = () => {
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
-        timer: 5000,
+        timer: 3000,
         timerProgressBar: true,
         icon: 'error',
         title: 'Login Gagal',
