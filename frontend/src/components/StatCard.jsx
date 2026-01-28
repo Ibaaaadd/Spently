@@ -11,13 +11,13 @@ const StatCard = ({ icon: Icon, label, value, color = 'primary' }) => {
 
   return (
     <Card hover>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">{label}</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mb-1 truncate">{label}</p>
+          <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white break-words">{value}</p>
         </div>
-        <div className={`${colorClasses[color]} bg-opacity-10 p-3 rounded-lg`}>
-          <Icon className="w-8 h-8" />
+        <div className={`${colorClasses[color]} bg-opacity-10 p-2 sm:p-3 rounded-lg flex-shrink-0`}>
+          <Icon className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
         </div>
       </div>
     </Card>

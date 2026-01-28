@@ -64,17 +64,74 @@ const ExpensePieChart = ({ data }) => {
         }
       }
     },
-    responsive: [{
-      breakpoint: 480,
-      options: {
-        chart: {
-          width: '100%'
-        },
-        legend: {
-          position: 'bottom'
+    responsive: [
+      {
+        breakpoint: 640,
+        options: {
+          chart: {
+            width: '100%',
+            height: 280
+          },
+          legend: {
+            position: 'bottom',
+            fontSize: '12px',
+            itemMargin: {
+              horizontal: 8,
+              vertical: 4
+            }
+          },
+          dataLabels: {
+            enabled: true,
+            style: {
+              fontSize: '12px'
+            }
+          }
+        }
+      },
+      {
+        breakpoint: 480,
+        options: {
+          chart: {
+            width: '100%',
+            height: 260
+          },
+          legend: {
+            position: 'bottom',
+            fontSize: '11px',
+            itemMargin: {
+              horizontal: 6,
+              vertical: 3
+            }
+          },
+          dataLabels: {
+            enabled: true,
+            style: {
+              fontSize: '11px'
+            }
+          }
+        }
+      },
+      {
+        breakpoint: 375,
+        options: {
+          chart: {
+            width: '100%',
+            height: 240
+          },
+          legend: {
+            position: 'bottom',
+            fontSize: '10px',
+            itemMargin: {
+              horizontal: 4,
+              vertical: 2
+            }
+          },
+          dataLabels: {
+            enabled: false
+          }
         }
       }
-    }]
+    ]
   };
 
   return (
@@ -83,7 +140,7 @@ const ExpensePieChart = ({ data }) => {
         options={options}
         series={series}
         type="pie"
-        height={300}
+        height="auto"
       />
     </div>
   );
