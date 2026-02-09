@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Camera, Trash2, Save, LogOut, Eye, EyeOff } from 'lucide-react';
 import api from '../services/api';
 import Swal from 'sweetalert2';
+import AvatarCropModal from '../components/AvatarCropModal';
 
 const Profile = () => {
   const { user, updateUser, logout } = useAuth();
@@ -19,6 +20,8 @@ const Profile = () => {
     password_confirmation: '',
   });
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [imageToCrop, setImageToCrop] = useState(null);
+  const [showCropModal, setShowCropModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -31,7 +34,8 @@ const Profile = () => {
       
       if (user.avatar) {
         const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:8000';
-        setAvatarPreview(`${baseUrl}/storage/${user.avatar}`);
+        const timestamp = new Date().getTime();
+        setAvatarPreview(`${baseUrl}/storage/${user.avatar}?t=${timestamp}`);
       }
     }
   }, [user]);
@@ -61,12 +65,6 @@ const Profile = () => {
         dataToSend.password_confirmation = formData.password_confirmation;
       }
 
-      console.log('Data yang dikirim:', {
-        ...dataToSend,
-        password: dataToSend.password ? '***' : undefined,
-        password_confirmation: dataToSend.password_confirmation ? '***' : undefined
-      });
-
       const response = await api.put('/profile', dataToSend);
 
       if (response.data.success) {
@@ -86,7 +84,6 @@ const Profile = () => {
         });
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
       Swal.fire({
         icon: 'error',
         title: 'Gagal!',
@@ -98,7 +95,7 @@ const Profile = () => {
     }
   };
 
-  const handleAvatarChange = async (e) => {
+  const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -109,6 +106,7 @@ const Profile = () => {
         text: 'Ukuran maksimal gambar adalah 2MB',
         confirmButtonColor: '#6366F1',
       });
+      e.target.value = '';
       return;
     }
 
@@ -119,14 +117,33 @@ const Profile = () => {
         text: 'File harus berupa gambar',
         confirmButtonColor: '#6366F1',
       });
+      e.target.value = '';
       return;
     }
 
+    // Read file and show crop modal
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImageToCrop(reader.result);
+      setShowCropModal(true);
+    };
+    reader.readAsDataURL(file);
+    
+    // Reset file input
+    e.target.value = '';
+  };
+
+  const handleCropSave = async (croppedImageBlob) => {
+    setShowCropModal(false);
     setAvatarLoading(true);
 
     try {
+      if (!croppedImageBlob || croppedImageBlob.size === 0) {
+        throw new Error('Cropped image is empty');
+      }
+
       const formData = new FormData();
-      formData.append('avatar', file);
+      formData.append('avatar', croppedImageBlob, 'avatar.jpg');
 
       const response = await api.post('/profile/avatar', formData, {
         headers: {
@@ -135,10 +152,15 @@ const Profile = () => {
       });
 
       if (response.data.success) {
-        updateUser(response.data.data.user);
+        const updatedUser = response.data.data.user;
+        
+        updateUser(updatedUser);
         
         const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:8000';
-        setAvatarPreview(`${baseUrl}/storage/${response.data.data.user.avatar}`);
+        const timestamp = new Date().getTime();
+        const newAvatarUrl = `${baseUrl}/storage/${updatedUser.avatar}?t=${timestamp}`;
+        
+        setAvatarPreview(newAvatarUrl);
 
         Swal.fire({
           icon: 'success',
@@ -148,16 +170,21 @@ const Profile = () => {
         });
       }
     } catch (error) {
-      console.error('Error uploading avatar:', error);
       Swal.fire({
         icon: 'error',
         title: 'Gagal!',
-        text: error.response?.data?.message || 'Terjadi kesalahan saat upload gambar',
+        text: error.response?.data?.message || error.message || 'Terjadi kesalahan saat upload gambar',
         confirmButtonColor: '#6366F1',
       });
     } finally {
       setAvatarLoading(false);
+      setImageToCrop(null);
     }
+  };
+
+  const handleCropCancel = () => {
+    setShowCropModal(false);
+    setImageToCrop(null);
   };
 
   const handleDeleteAvatar = async () => {
@@ -192,7 +219,6 @@ const Profile = () => {
         });
       }
     } catch (error) {
-      console.error('Error deleting avatar:', error);
       Swal.fire({
         icon: 'error',
         title: 'Gagal!',
@@ -236,6 +262,16 @@ const Profile = () => {
   };
 
   return (
+    <>
+      {/* Avatar Crop Modal */}
+      {showCropModal && imageToCrop && (
+        <AvatarCropModal
+          image={imageToCrop}
+          onSave={handleCropSave}
+          onClose={handleCropCancel}
+        />
+      )}
+
     <div className="min-h-screen bg-gray-50 dark:bg-dark-bg py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
@@ -265,11 +301,12 @@ const Profile = () => {
           </h2>
           <div className="flex items-center space-x-6">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+              <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center ring-2 ring-gray-300 dark:ring-gray-600">
                 {avatarLoading ? (
                   <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
                 ) : avatarPreview ? (
                   <img
+                    key={avatarPreview}
                     src={avatarPreview}
                     alt="Avatar"
                     className="w-full h-full object-cover"
@@ -437,6 +474,7 @@ const Profile = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 

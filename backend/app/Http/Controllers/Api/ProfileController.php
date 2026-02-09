@@ -71,6 +71,8 @@ class ProfileController extends Controller
      */
     public function updateAvatar(Request $request)
     {
+        
+
         $validator = Validator::make($request->all(), [
             'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
         ]);
@@ -98,7 +100,7 @@ class ProfileController extends Controller
 
         // Generate full URL
         $avatarUrl = Storage::url($avatarPath);
-
+        
         return response()->json([
             'success' => true,
             'message' => 'Avatar berhasil diperbarui',
