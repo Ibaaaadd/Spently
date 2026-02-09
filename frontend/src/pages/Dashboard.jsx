@@ -4,17 +4,25 @@ import Swal from 'sweetalert2';
 import Card from '../components/Card';
 import StatCard from '../components/StatCard';
 import ExpensePieChart from '../components/ExpensePieChart';
-import { getSummary } from '../services/api';
+import ExpenseBarChart from '../components/ExpenseBarChart';
+import { getSummary, getYearlySummary } from '../services/api';
 import { formatRupiah, getCurrentMonthYear, getMonthName } from '../utils/helpers';
 
 const Dashboard = () => {
   const [summary, setSummary] = useState(null);
+  const [yearlySummary, setYearlySummary] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [yearlyLoading, setYearlyLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState(getCurrentMonthYear());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
     fetchSummary();
   }, [selectedPeriod]);
+
+  useEffect(() => {
+    fetchYearlySummary();
+  }, [selectedYear]);
 
   const fetchSummary = async () => {
     try {
@@ -30,6 +38,18 @@ const Dashboard = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchYearlySummary = async () => {
+    try {
+      setYearlyLoading(true);
+      const response = await getYearlySummary(selectedYear);
+      setYearlySummary(response.data.data);
+    } catch (error) {
+      console.error('Error fetching yearly summary:', error);
+    } finally {
+      setYearlyLoading(false);
     }
   };
 
@@ -173,6 +193,42 @@ const Dashboard = () => {
           </div>
         </Card>
       </div>
+
+      {/* Yearly Bar Chart */}
+      <Card className="mt-3 sm:mt-4 lg:mt-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4">
+          <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white">Pengeluaran Tahunan</h3>
+          <div className="flex items-center space-x-1.5 sm:space-x-2">
+            <button
+              onClick={() => setSelectedYear(prev => prev - 1)}
+              className="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-gray-700 dark:bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-xs sm:text-sm text-white font-medium"
+            >
+              ←
+            </button>
+            <span className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-100 dark:bg-dark-bg rounded-lg text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
+              {selectedYear}
+            </span>
+            <button
+              onClick={() => setSelectedYear(prev => prev + 1)}
+              className="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-gray-700 dark:bg-dark-cardHover hover:bg-primary rounded-lg transition-colors text-xs sm:text-sm text-white font-medium"
+            >
+              →
+            </button>
+          </div>
+        </div>
+        {yearlyLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : yearlySummary?.monthly_breakdown && yearlySummary.monthly_breakdown.length > 0 ? (
+          <ExpenseBarChart data={yearlySummary.monthly_breakdown} />
+        ) : (
+          <div className="text-center py-8 sm:py-12 text-gray-500 dark:text-gray-400">
+            <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 opacity-50" />
+            <p className="text-sm sm:text-base">Belum ada data pengeluaran untuk tahun {selectedYear}</p>
+          </div>
+        )}
+      </Card>
 
       {/* All Categories Breakdown */}
       {summary?.breakdown_per_kategori?.length > 0 && (

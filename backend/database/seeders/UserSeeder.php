@@ -16,13 +16,12 @@ class UserSeeder extends Seeder
     {
         // Create demo user
         User::create([
-            'name' => 'Demo User',
-            'email' => 'demo@spently.com',
+            'name' => 'Choirul Ainul Ibad',
+            'email' => 'ibad@gmail.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
         ]);
 
-        // Create test user
         User::create([
             'name' => 'Test User',
             'email' => 'test@example.com',

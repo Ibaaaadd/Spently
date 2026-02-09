@@ -439,4 +439,61 @@ class ExpenseController extends Controller
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ])->deleteFileAfterSend(true);
     }
+
+    public function yearlySummary(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'year' => 'required|integer|min:2000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $year = $request->year;
+        $userId = $request->user()->id;
+
+        $monthNames = [
+            1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
+            5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
+            9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'
+        ];
+
+        // Get monthly breakdown for the year
+        $monthlyBreakdown = DB::table('expenses')
+            ->select(
+                DB::raw('MONTH(date) as month'),
+                DB::raw('SUM(amount) as total')
+            )
+            ->where('user_id', $userId)
+            ->whereYear('date', $year)
+            ->groupBy(DB::raw('MONTH(date)'))
+            ->orderBy('month')
+            ->get();
+
+        // Create array with all 12 months (even if no data)
+        $allMonths = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $monthData = $monthlyBreakdown->firstWhere('month', $i);
+            $allMonths[] = [
+                'month' => $i,
+                'month_name' => $monthNames[$i],
+                'total' => $monthData ? (float) $monthData->total : 0
+            ];
+        }
+
+        $totalTahunan = array_sum(array_column($allMonths, 'total'));
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'year' => (int) $year,
+                'total_tahunan' => (float) $totalTahunan,
+                'monthly_breakdown' => $allMonths
+            ]
+        ]);
+    }
 }

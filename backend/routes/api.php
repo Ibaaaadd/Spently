@@ -24,6 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('categories', CategoryController::class);
     
     Route::get('expenses/summary', [ExpenseController::class, 'summary']);
+    Route::get('expenses/yearly-summary', [ExpenseController::class, 'yearlySummary']);
     Route::get('expenses/export', [ExpenseController::class, 'export']);
     Route::apiResource('expenses', ExpenseController::class);
 });

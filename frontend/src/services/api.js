@@ -59,4 +59,7 @@ export const exportExpenses = (params) => api.get('/expenses/export', {
 export const getSummary = (month, year) => 
   api.get('/expenses/summary', { params: { month, year } });
 
+export const getYearlySummary = (year) => 
+  api.get('/expenses/yearly-summary', { params: { year } });
+
 export default api;
