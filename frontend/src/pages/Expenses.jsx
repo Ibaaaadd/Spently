@@ -464,7 +464,7 @@ const Expenses = () => {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-black dark:text-gray-300 mb-2">
               Tanggal
             </label>
             <input
@@ -477,7 +477,7 @@ const Expenses = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-black dark:text-gray-300 mb-2">
               Kategori
             </label>
             <select
@@ -494,7 +494,7 @@ const Expenses = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-black dark:text-gray-300 mb-2">
               Deskripsi
             </label>
             <input
@@ -508,7 +508,7 @@ const Expenses = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-black dark:text-gray-300 mb-2">
               Jumlah (Rp)
             </label>
             <input

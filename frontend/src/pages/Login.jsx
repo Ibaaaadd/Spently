@@ -37,22 +37,11 @@ const Login = () => {
     try {
       await login(formData.email, formData.password);
       
-      const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
+      // Navigate to dashboard and show success toast there
+      navigate('/', { 
+        replace: true, 
+        state: { loginSuccess: true, message: 'Login berhasil! 👋' } 
       });
-      
-      await Toast.fire({
-        icon: 'success',
-        title: 'Login berhasil! 👋'
-      });
-      
-      setTimeout(() => {
-        navigate('/', { replace: true });
-      }, 500);
       
     } catch (error) {
       const errorMessage = error?.message || error?.response?.data?.message || 'Email atau password tidak sesuai';
@@ -92,24 +81,12 @@ const Login = () => {
       if (data.success) {
         localStorage.setItem('token', data.data.token);
         localStorage.setItem('user', JSON.stringify(data.data.user));
-
-        const Toast = Swal.mixin({
-          toast: true,
-          position: 'top-end',
-          showConfirmButton: false,
-          timer: 3000,
-          timerProgressBar: true,
-        });
         
-        await Toast.fire({
-          icon: 'success',
-          title: 'Login dengan Google berhasil! 👋'
-        });
+        // Store success message in sessionStorage for after reload
+        sessionStorage.setItem('loginSuccess', 'Login dengan Google berhasil! 👋');
         
-        setTimeout(() => {
-          navigate('/', { replace: true });
-          window.location.reload();
-        }, 500);
+        // Redirect and reload
+        window.location.href = '/';
       } else {
         throw new Error(data.message || 'Google login failed');
       }

@@ -142,24 +142,12 @@ const Register = () => {
       if (data.success) {
         localStorage.setItem('token', data.data.token);
         localStorage.setItem('user', JSON.stringify(data.data.user));
-
-        const Toast = Swal.mixin({
-          toast: true,
-          position: 'top-end',
-          showConfirmButton: false,
-          timer: 3000,
-          timerProgressBar: true,
-        });
         
-        await Toast.fire({
-          icon: 'success',
-          title: 'Registrasi dengan Google berhasil! 🎉'
-        });
+        // Store success message in sessionStorage for after reload
+        sessionStorage.setItem('loginSuccess', 'Registrasi dengan Google berhasil! 🎉');
         
-        setTimeout(() => {
-          navigate('/', { replace: true });
-          window.location.reload();
-        }, 500);
+        // Redirect and reload
+        window.location.href = '/';
       } else {
         throw new Error(data.message || 'Google registration failed');
       }

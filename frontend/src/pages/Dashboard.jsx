@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { TrendingUp, AlertCircle, Calendar } from 'lucide-react';
 import Swal from 'sweetalert2';
 import Card from '../components/Card';
@@ -9,12 +10,56 @@ import { getSummary, getYearlySummary } from '../services/api';
 import { formatRupiah, getCurrentMonthYear, getMonthName } from '../utils/helpers';
 
 const Dashboard = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [summary, setSummary] = useState(null);
   const [yearlySummary, setYearlySummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [yearlyLoading, setYearlyLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState(getCurrentMonthYear());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
+  // Show success toast after login
+  useEffect(() => {
+    // Check for login success from navigation state
+    if (location.state?.loginSuccess) {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      
+      Toast.fire({
+        icon: 'success',
+        title: location.state?.message || 'Login berhasil! 👋'
+      });
+      
+      // Clear state to prevent showing toast on refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+    
+    // Check for login success from sessionStorage (for Google login with reload)
+    const loginSuccess = sessionStorage.getItem('loginSuccess');
+    if (loginSuccess) {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      
+      Toast.fire({
+        icon: 'success',
+        title: loginSuccess
+      });
+      
+      // Clear sessionStorage
+      sessionStorage.removeItem('loginSuccess');
+    }
+  }, [location, navigate]);
 
   useEffect(() => {
     fetchSummary();
