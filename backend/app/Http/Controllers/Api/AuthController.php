@@ -181,20 +181,31 @@ class AuthController extends Controller
 
     /**
      * Verify Google token
-     * Implement actual Google token verification here
+     * Verify Google ID Token using Google API Client
      */
     private function verifyGoogleToken($token)
     {
-        // TODO: Implement actual Google token verification
-        // Use Google API Client library
-        
-        // Example return structure:
-        return [
-            'id' => 'google-user-id',
-            'email' => 'user@example.com',
-            'name' => 'User Name',
-            'picture' => 'https://example.com/avatar.jpg',
-        ];
+        try {
+            $client = new \Google_Client([
+                'client_id' => config('services.google.client_id')
+            ]);
+            
+            $payload = $client->verifyIdToken($token);
+            
+            if (!$payload) {
+                throw new \Exception('Invalid Google token');
+            }
+
+            return [
+                'id' => $payload['sub'],
+                'email' => $payload['email'],
+                'name' => $payload['name'] ?? '',
+                'picture' => $payload['picture'] ?? null,
+                'email_verified' => $payload['email_verified'] ?? false,
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception('Failed to verify Google token: ' . $e->getMessage());
+        }
     }
 
     /**
