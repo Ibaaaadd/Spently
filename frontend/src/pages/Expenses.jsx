@@ -116,6 +116,7 @@ const Expenses = () => {
           title: 'Pengeluaran berhasil ditambahkan!'
         });
       }
+      sessionStorage.setItem('needsDashboardRefresh', 'true');
       closeModal();
       fetchExpenses();
     } catch (error) {
@@ -156,6 +157,7 @@ const Expenses = () => {
     if (result.isConfirmed) {
       try {
         await deleteExpense(id);
+        sessionStorage.setItem('needsDashboardRefresh', 'true');
         Toast.fire({
           icon: 'success',
           title: 'Pengeluaran berhasil dihapus!'

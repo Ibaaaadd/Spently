@@ -205,11 +205,18 @@ class ExpenseController extends Controller
             ->orderBy('total', 'desc')
             ->get();
 
+        // Explicitly map and ensure percentage is always present as a number
         $breakdown = $breakdown->map(function ($item) use ($totalBulanan) {
-            $item->percentage = $totalBulanan > 0 
-                ? round(($item->total / $totalBulanan) * 100, 2) 
-                : 0;
-            return $item;
+            return [
+                'id' => (int) $item->id,
+                'name' => $item->name,
+                'color' => $item->color,
+                'total' => (float) $item->total,
+                'count' => (int) $item->count,
+                'percentage' => $totalBulanan > 0 
+                    ? (float) round(($item->total / $totalBulanan) * 100, 2)
+                    : 0.0
+            ];
         });
 
         $topCategories = $breakdown->take(3);

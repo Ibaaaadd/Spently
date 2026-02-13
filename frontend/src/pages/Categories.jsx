@@ -49,6 +49,7 @@ const Categories = () => {
           title: 'Kategori berhasil ditambahkan!'
         });
       }
+      sessionStorage.setItem('needsDashboardRefresh', 'true');
       closeModal();
       fetchCategories();
     } catch (error) {
@@ -81,6 +82,7 @@ const Categories = () => {
     if (result.isConfirmed) {
       try {
         await deleteCategory(id);
+        sessionStorage.setItem('needsDashboardRefresh', 'true');
         Toast.fire({
           icon: 'success',
           title: 'Kategori berhasil dihapus!'

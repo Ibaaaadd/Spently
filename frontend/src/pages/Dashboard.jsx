@@ -69,6 +69,17 @@ const Dashboard = () => {
     fetchYearlySummary();
   }, [selectedYear]);
 
+  // Refresh data when user navigates to dashboard
+  useEffect(() => {
+    // Check if coming from another page
+    const fromOtherPage = sessionStorage.getItem('needsDashboardRefresh');
+    if (fromOtherPage) {
+      fetchSummary();
+      fetchYearlySummary();
+      sessionStorage.removeItem('needsDashboardRefresh');
+    }
+  }, [location]);
+
   const fetchSummary = async () => {
     try {
       setLoading(true);
