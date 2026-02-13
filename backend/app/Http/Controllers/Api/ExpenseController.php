@@ -18,6 +18,9 @@ class ExpenseController extends Controller
 {
     public function index(Request $request)
     {
+        // Simulate 3 second delay for testing loading state
+        sleep(3);
+        
         $query = Expense::where('user_id', $request->user()->id)
             ->with('category')
             ->orderBy('date', 'desc');
@@ -37,6 +40,10 @@ class ExpenseController extends Controller
 
         if ($request->has('category_id') && $request->category_id) {
             $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->has('search') && $request->search) {
+            $query->where('description', 'like', '%' . $request->search . '%');
         }
 
         $totalSum = (clone $query)->sum('amount');
@@ -323,6 +330,10 @@ class ExpenseController extends Controller
             
             if ($categoryFilter) {
                 $query->where('category_id', $categoryFilter);
+            }
+            
+            if ($request->has('search') && $request->search) {
+                $query->where('description', 'like', '%' . $request->search . '%');
             }
             
             $expenses = $query->get();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Receipt, Calendar, Wallet, Download } from 'lucide-react';
+import { Plus, Edit2, Trash2, Receipt, Calendar, Wallet, Download, Search } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Swal from 'sweetalert2';
@@ -30,7 +30,8 @@ const Expenses = () => {
     return `${year}-${month}-${day}`;
   };
   const [filters, setFilters] = useState({
-    categoryId: ''
+    categoryId: '',
+    search: ''
   });
   const [paginationMeta, setPaginationMeta] = useState({
     total: 0,
@@ -78,6 +79,7 @@ const Expenses = () => {
         per_page: 10,
         ...(startDate && { start_date: formatDateLocal(startDate) }),
         ...(endDate && { end_date: formatDateLocal(endDate) }),
+        ...(filters.search && { search: filters.search }),
         ...(filters.categoryId && { category_id: filters.categoryId })
       };
       const response = await getExpenses(params);
@@ -212,6 +214,7 @@ const Expenses = () => {
   const handleResetFilters = () => {
     setDateRange([null, null]);
     setFilters({
+      search: '',
       categoryId: ''
     });
   };
@@ -222,6 +225,7 @@ const Expenses = () => {
         ...((!startDate && !endDate) ? selectedPeriod : {}),
         ...(startDate && { start_date: formatDateLocal(startDate) }),
         ...(endDate && { end_date: formatDateLocal(endDate) }),
+        ...(filters.search && { search: filters.search }),
         ...(filters.categoryId && { category_id: filters.categoryId })
       };
       
@@ -389,6 +393,21 @@ const Expenses = () => {
 
           {/* Filters Row */}
           <div className="flex flex-col sm:flex-row gap-3 items-end">
+            <div className="flex-1 w-full">
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                Cari Deskripsi
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  placeholder="Cari berdasarkan deskripsi..."
+                  className="w-full pl-10 pr-3 py-2 bg-white dark:bg-dark-bg border border-gray-300 dark:border-dark-border rounded-lg text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+            </div>
             <div className="flex-1 w-full">
               <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Rentang Tanggal
